@@ -21,6 +21,6 @@ import com.google.inject.AbstractModule;
 class Module extends AbstractModule {
   @Override
   protected void configure() {
-      //DynamicSet.bind(binder(), EventListener.class).to(StreamEventListener.class);
+      DynamicSet.bind(binder(), EventListener.class).to(StreamEventListener.class);
   }
 }

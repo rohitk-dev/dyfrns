@@ -1,10 +1,13 @@
 package com.googlesource.gerrit.plugins.dyfrns;
 
+import com.google.inject.Singleton;
+
 import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@Singleton
 public class TimerQueue {
     private PriorityQueue<TimerEvent> queue;
     private Timer timer;
