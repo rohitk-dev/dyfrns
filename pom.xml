@@ -50,6 +50,7 @@ limitations under the License.
 
               <Gerrit-ApiType>${Gerrit-ApiType}</Gerrit-ApiType>
               <Gerrit-ApiVersion>${Gerrit-ApiVersion}</Gerrit-ApiVersion>
+              <Gerrit-ReloadMode>restart</Gerrit-ReloadMode>
             </manifestEntries>
           </archive>
         </configuration>

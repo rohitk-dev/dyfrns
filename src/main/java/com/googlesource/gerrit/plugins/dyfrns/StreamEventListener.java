@@ -11,24 +11,20 @@ import org.slf4j.LoggerFactory;
 public class StreamEventListener implements EventListener {
     private static final Logger log = LoggerFactory.getLogger(StreamEventListener.class);
 
-    private final TimerQueue.Factory timerQueueFactory;
     private static TimerQueue timerQueue;
 
     @Inject
     StreamEventListener(TimerQueue.Factory timerQueueFactory) {
         log.info("Module created");
-        this.timerQueueFactory = timerQueueFactory;
+        if (timerQueue == null) {
+            timerQueue = timerQueueFactory.create();
+        }
+        log.info("Timer queue's version is " + timerQueue.version);
     }
 
     @Override
     public void onEvent(Event event) {
         log.info("Got an event of type " + event.getType());
-
-        if (timerQueue == null) {
-            timerQueue = timerQueueFactory.create();
-        }
-
-        log.info("Timer queue's version is " + timerQueue.version);
 
         String eventType = event.getType();
         switch (eventType) {
@@ -42,5 +38,13 @@ public class StreamEventListener implements EventListener {
 
     private void onReviewerAdded(ReviewerAddedEvent reviewerAddedEvent) {
         log.info("Reviewer " + reviewerAddedEvent.reviewer.email + " added");
+        TimerEvent event = new TimerEvent(
+                reviewerAddedEvent.change.number,
+                new String[]{reviewerAddedEvent.reviewer.email});
+        try {
+            timerQueue.add(event);
+        } catch (Exception e) {
+            log.info("Got an error: ", e);
+        }
     }
 }

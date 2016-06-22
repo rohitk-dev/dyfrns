@@ -24,10 +24,5 @@ class Module extends FactoryModule {
   protected void configure() {
       DynamicSet.bind(binder(), EventListener.class).to(StreamEventListener.class);
       factory(TimerQueue.Factory.class);
-
-
-//      TimerQueue queue = new TimerQueue();
-//      bind(TimerQueueable.class).toInstance(queue);
-//      bind(EventListener.class).toInstance(new StreamEventListener(queue));
   }
 }

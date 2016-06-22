@@ -11,6 +11,7 @@ gerrit_plugin(
     'Gerrit-Module: com.googlesource.gerrit.plugins.dyfrns.Module',
     'Gerrit-SshModule: com.googlesource.gerrit.plugins.dyfrns.SshModule',
     'Gerrit-HttpModule: com.googlesource.gerrit.plugins.dyfrns.HttpModule',
+    'Gerrit-ReloadMode: restart',
   ],
 )
 
