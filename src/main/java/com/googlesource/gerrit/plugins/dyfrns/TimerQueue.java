@@ -8,7 +8,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 @Singleton
-public class TimerQueue {
+public class TimerQueue implements TimerQueueable {
     private PriorityQueue<TimerEvent> queue;
     private Timer timer;
     private boolean timerRunning;
@@ -29,6 +29,7 @@ public class TimerQueue {
         timerRunning = true;
     }
 
+    @Override
     public synchronized void add(TimerEvent event) throws Exception {
         System.out.println("Adding " + event);
         printQueue();
@@ -51,6 +52,7 @@ public class TimerQueue {
         }
     }
 
+    @Override
     public synchronized void cancel(TimerEvent event) throws Exception {
         System.out.println("Canceling " + event);
         printQueue();
@@ -70,6 +72,7 @@ public class TimerQueue {
         }
     }
 
+    @Override
     public synchronized void reschedule(TimerEvent event) throws Exception {
         System.out.println("Rescheduling " + event);
         printQueue();

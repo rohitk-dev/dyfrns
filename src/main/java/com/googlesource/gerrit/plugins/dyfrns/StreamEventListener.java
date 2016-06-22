@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory;
 public class StreamEventListener implements EventListener {
     private static final Logger log = LoggerFactory.getLogger(StreamEventListener.class);
 
-    EventListener eventListener;
+    private TimerQueueable timerQueueable;
 
     @Inject
-    StreamEventListener(EventListener eventListener) {
-        this.eventListener = eventListener;
+    StreamEventListener(TimerQueueable timerQueueable) {
+        this.timerQueueable = timerQueueable;
     }
 
     @Override
