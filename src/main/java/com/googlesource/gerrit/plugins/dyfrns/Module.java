@@ -15,12 +15,19 @@
 package com.googlesource.gerrit.plugins.dyfrns;
 
 import com.google.gerrit.common.EventListener;
+import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.extensions.registration.DynamicSet;
 import com.google.inject.AbstractModule;
 
-class Module extends AbstractModule {
+class Module extends FactoryModule {
   @Override
   protected void configure() {
-      DynamicSet.bind(binder(), TimerQueueable.class).to(TimerQueue.class);
+      DynamicSet.bind(binder(), EventListener.class).to(StreamEventListener.class);
+      factory(TimerQueue.Factory.class);
+
+
+//      TimerQueue queue = new TimerQueue();
+//      bind(TimerQueueable.class).toInstance(queue);
+//      bind(EventListener.class).toInstance(new StreamEventListener(queue));
   }
 }

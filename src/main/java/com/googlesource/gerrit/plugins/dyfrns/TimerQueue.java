@@ -1,5 +1,6 @@
 package com.googlesource.gerrit.plugins.dyfrns;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.Iterator;
@@ -7,15 +8,22 @@ import java.util.PriorityQueue;
 import java.util.Timer;
 import java.util.TimerTask;
 
-@Singleton
 public class TimerQueue implements TimerQueueable {
     private PriorityQueue<TimerEvent> queue;
     private Timer timer;
     private boolean timerRunning;
 
+    public int version;
+
+    public interface Factory {
+        TimerQueue create();
+    }
+
+    @Inject
     TimerQueue() {
         queue = new PriorityQueue<TimerEvent>();
         timer = new Timer();
+        version = (int)(1000 * Math.random());
     }
 
     private void startNewTimer(final TimerEvent event) {

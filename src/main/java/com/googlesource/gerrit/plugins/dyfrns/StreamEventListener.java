@@ -8,19 +8,28 @@ import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Singleton
 public class StreamEventListener implements EventListener {
     private static final Logger log = LoggerFactory.getLogger(StreamEventListener.class);
 
-    private TimerQueueable timerQueueable;
+    private final TimerQueue.Factory timerQueueFactory;
+    private static TimerQueue timerQueue;
 
     @Inject
-    StreamEventListener(TimerQueueable timerQueueable) {
-        this.timerQueueable = timerQueueable;
+    StreamEventListener(TimerQueue.Factory timerQueueFactory) {
+        log.info("Module created");
+        this.timerQueueFactory = timerQueueFactory;
     }
 
     @Override
     public void onEvent(Event event) {
+        log.info("Got an event of type " + event.getType());
+
+        if (timerQueue == null) {
+            timerQueue = timerQueueFactory.create();
+        }
+
+        log.info("Timer queue's version is " + timerQueue.version);
+
         String eventType = event.getType();
         switch (eventType) {
             case "reviewer-added":
