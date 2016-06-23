@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimerTask;
@@ -14,7 +15,7 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
     private String id;
     private Date expire;
     private TimerQueue timerQueue;
-    private String[] emails;
+    private ArrayList<String> emails;
 
     private int reminder = 0;
 
@@ -22,7 +23,7 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.S");
 
-    TimerEvent(String id, String[] emails) {
+    TimerEvent(String id, ArrayList<String> emails) {
         this.id = id;
         this.emails = emails;
         this.expire = new Date(System.currentTimeMillis() + TIMEOUT);
@@ -30,10 +31,12 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
 
     @Override
     public int compareTo(TimerEvent o) {
-        if (id.equals(o.id)) {
-            return 0;
+        int compare = expire.compareTo(o.expire);
+
+        if (compare == 0) {
+            return id.compareTo(o.id);
         } else {
-            return expire.compareTo(o.expire);
+            return compare;
         }
     }
 
@@ -74,8 +77,8 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
         return id;
     }
 
-    public String getEmail() {
-        return emails[0];
+    public ArrayList<String> getEmails() {
+        return emails;
     }
 
     public Date getExpire() {
@@ -97,6 +100,6 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
                         "; expire: %s" +
                         "; reminder: #%d" +
                         "; emails: %s",
-                id, dateFormat.format(expire), reminder, Arrays.toString(emails));
+                id, dateFormat.format(expire), reminder, emails);
     }
 }

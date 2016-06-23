@@ -1,8 +1,7 @@
 package com.googlesource.gerrit.plugins.dyfrns;
 
 import com.google.gerrit.common.EventListener;
-import com.google.gerrit.server.events.Event;
-import com.google.gerrit.server.events.ReviewerAddedEvent;
+import com.google.gerrit.server.events.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
@@ -31,6 +30,15 @@ public class StreamEventListener implements EventListener {
             case "reviewer-added":
                 onReviewerAdded((ReviewerAddedEvent)event);
                 break;
+            case "change-abandoned":
+                onChangeAbandoned((ChangeAbandonedEvent)event);
+                break;
+            case "change-merged":
+                onChangeMerged((ChangeMergedEvent)event);
+                break;
+            case "comment-added":
+                onCommentAdded((CommentAddedEvent)event);
+                break;
             default:
                 return;
         }
@@ -38,11 +46,32 @@ public class StreamEventListener implements EventListener {
 
     private void onReviewerAdded(ReviewerAddedEvent reviewerAddedEvent) {
         log.info("Reviewer " + reviewerAddedEvent.reviewer.email + " added");
-        TimerEvent event = new TimerEvent(
-                reviewerAddedEvent.change.number,
-                new String[]{reviewerAddedEvent.reviewer.email});
         try {
-            timerQueue.add(event);
+            timerQueue.addReviewer(reviewerAddedEvent.change.number, reviewerAddedEvent.reviewer.email);
+        } catch (Exception e) {
+            log.info("Got an error: ", e);
+        }
+    }
+
+    private void onChangeAbandoned(ChangeAbandonedEvent changeAbandonedEvent) {
+        try {
+            timerQueue.cancel(changeAbandonedEvent.change.number);
+        } catch (Exception e) {
+            log.info("Got an error: ", e);
+        }
+    }
+
+    private void onChangeMerged(ChangeMergedEvent changeMergedEvent) {
+        try {
+            timerQueue.cancel(changeMergedEvent.change.number);
+        } catch (Exception e) {
+            log.info("Got an error: ", e);
+        }
+    }
+
+    private void onCommentAdded(CommentAddedEvent commentAddedEvent) {
+        try {
+            timerQueue.removeReviewer(commentAddedEvent.change.number, commentAddedEvent.author.email);
         } catch (Exception e) {
             log.info("Got an error: ", e);
         }
