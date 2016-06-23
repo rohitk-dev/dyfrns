@@ -4,10 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.TimerTask;
+import java.util.*;
 
 public class TimerEvent implements Comparable<TimerEvent>, Runnable {
     private static final Logger log = LoggerFactory.getLogger(TimerEvent.class);
@@ -15,17 +12,16 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
     private String id;
     private Date expire;
     private TimerQueue timerQueue;
-    private ArrayList<String> emails;
-
-    private int reminder = 0;
+    private ArrayList<Info> infos;
 
     private final int TIMEOUT = 1 * 10 * 1000;
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.S");
 
-    TimerEvent(String id, ArrayList<String> emails) {
+    TimerEvent(String id, String email) {
         this.id = id;
-        this.emails = emails;
+        this.infos = new ArrayList<>();
+        this.infos.add(new Info(email));
         this.expire = new Date(System.currentTimeMillis() + TIMEOUT);
     }
 
@@ -56,8 +52,9 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
         }
 
         // perform the actual task
-        //System.out.println(this);
-        reminder++;
+        for (Info info : infos) {
+            info.count++;
+        }
 
         // update the expiration time
         expire = new Date(System.currentTimeMillis() + TIMEOUT);
@@ -69,7 +66,6 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
             log.info("Just called timerQueue.reschedule");
         } catch (Exception e) {
             log.info("Got an error: ", e);
-            //e.printStackTrace();
         }
     }
 
@@ -77,29 +73,60 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
         return id;
     }
 
-    public ArrayList<String> getEmails() {
-        return emails;
+    public ArrayList<Info> getInfos() {
+        return infos;
     }
 
     public Date getExpire() {
         return expire;
     }
 
-    public void setTimerQueue(TimerQueue timerQueue) {
-        this.timerQueue = timerQueue;
+    public void addReviewer(String email) {
+        Info newInfo = new Info(email);
+        if (!infos.contains(newInfo)) {
+            infos.add(newInfo);
+        } else {
+            log.warn("Reviewer " + email + " is already assigned to " + this);
+        }
     }
 
+    public void removeReviewer(String email) {
+        Info newInfo = new Info(email);
+        if (infos.contains(newInfo)) {
+            infos.remove(email);
+        } else {
+            log.warn("Reviewer " + email + " is not assigned to " + this);
+        }
+    }
 
-    public int getReminder() {
-        return reminder;
+    public void setTimerQueue(TimerQueue timerQueue) {
+        this.timerQueue = timerQueue;
     }
 
     @Override
     public String toString() {
         return String.format("Task %s:" +
                         "; expire: %s" +
-                        "; reminder: #%d" +
-                        "; emails: %s",
-                id, dateFormat.format(expire), reminder, emails);
+                        "; infos: #%s",
+                id, dateFormat.format(expire), infos);
+    }
+
+    class Info {
+        String email;
+        int count;
+
+        public Info(String email) {
+            this.email = email;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return email.equals(obj);
+        }
+
+        @Override
+        public String toString() {
+            return email + "(reminder #" + count + ")";
+        }
     }
 }

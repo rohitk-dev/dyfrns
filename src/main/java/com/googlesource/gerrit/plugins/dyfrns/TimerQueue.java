@@ -143,16 +143,9 @@ public class TimerQueue {
     public synchronized void addReviewer(String id, String email) throws Exception {
         if (map.containsKey(id)) {
             TimerEvent timerEvent = map.get(id);
-            ArrayList<String> emails = timerEvent.getEmails();
-            if (!emails.contains(email)) {
-                emails.add(email);
-            } else {
-                log.warn("Reviewer " + email + " is already assigned to " + timerEvent);
-            }
+            timerEvent.addReviewer(email);
         } else {
-            ArrayList<String> emails = new ArrayList<>();
-            emails.add(email);
-            TimerEvent timerEvent = new TimerEvent(id, emails);
+            TimerEvent timerEvent = new TimerEvent(id, email);
             add(timerEvent);
         }
     }
@@ -160,12 +153,7 @@ public class TimerQueue {
     public synchronized void removeReviewer(String id, String email) throws Exception {
         if (map.containsKey(id)) {
             TimerEvent timerEvent = map.get(id);
-            ArrayList<String> emails = timerEvent.getEmails();
-            if (emails.contains(email)) {
-                emails.remove(email);
-            } else {
-                log.warn("Reviewer " + email + " is not assigned to " + timerEvent);
-            }
+            timerEvent.removeReviewer(email);
         } else {
             log.warn("No entry with id " + id);
         }
@@ -235,13 +223,16 @@ public class TimerQueue {
         headers.put("Message-ID", new EmailHeader.String(""));
         headers.put("Reply-To", new EmailHeader.String(from.getEmail()));
 
-        ArrayList<String> emails = event.getEmails();
-        log.info("Sending emails to " + emails);
-        for (String email : emails) {
+        ArrayList<TimerEvent.Info> infos = event.getInfos();
+        log.info("Sending emails to " + infos);
+        for (TimerEvent.Info info : infos) {
             Collection<Address> to = new LinkedList<>();
-            to.add(new Address(email));
-            headers.put("Subject", new EmailHeader.String("(Un)friendly reminder from Gerrit to " + email + " about your review"));
-            emailSender.send(from, to, headers, "This is reminder #" + event.getReminder());
+            to.add(new Address(info.email));
+            headers.put(
+                    "Subject",
+                    new EmailHeader.String(
+                            "(Un)friendly reminder from Gerrit to " + info.email + " about your review"));
+            emailSender.send(from, to, headers, "This is reminder #" + info.count);
         }
     }
 
