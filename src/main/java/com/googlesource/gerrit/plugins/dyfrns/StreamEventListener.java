@@ -51,6 +51,7 @@ public class StreamEventListener implements EventListener {
                     reviewerAddedEvent.change.number,
                     reviewerAddedEvent.reviewer.email,
                     reviewerAddedEvent.reviewer.name);
+
         } catch (Exception e) {
             log.info("Got an error: ", e);
         }

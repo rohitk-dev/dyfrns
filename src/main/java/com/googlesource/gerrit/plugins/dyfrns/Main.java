@@ -5,6 +5,7 @@ import java.util.Random;
 public class Main {
 
     public static void main(String[] args) {
+        /*
         Random random = new Random();
         TimerQueue queue = new TimerQueue();
 
@@ -41,5 +42,6 @@ public class Main {
                 return;
             }
         }
+        */
     }
 }
