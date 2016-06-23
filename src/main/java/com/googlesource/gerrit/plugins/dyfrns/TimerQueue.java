@@ -106,7 +106,7 @@ public class TimerQueue {
 
         boolean removingFirstEntry = queue.peek().getId().equals(id);
 
-        queue.remove(new TimerEvent(id, null));
+        queue.remove(new TimerEvent(id, null, null));
         map.remove(id);
 
         if (removingFirstEntry) {
@@ -140,12 +140,12 @@ public class TimerQueue {
         log.info("readded the event");
     }
 
-    public synchronized void addReviewer(String id, String email) throws Exception {
+    public synchronized void addReviewer(String id, String email, String name) throws Exception {
         if (map.containsKey(id)) {
             TimerEvent timerEvent = map.get(id);
-            timerEvent.addReviewer(email);
+            timerEvent.addReviewer(email, name);
         } else {
-            TimerEvent timerEvent = new TimerEvent(id, email);
+            TimerEvent timerEvent = new TimerEvent(id, email, name);
             add(timerEvent);
         }
     }
@@ -214,7 +214,6 @@ public class TimerQueue {
 
     private void sendReminderEmail(TimerEvent event) throws EmailException {
         Address from = new Address("Gerrit", "dyfrns@gerrit.com");
-
         Map<String, EmailHeader> headers = new HashMap<>();
         headers.put("Date", new EmailHeader.Date(new Date()));
         headers.put("From", new EmailHeader.AddressList(from));
@@ -227,11 +226,11 @@ public class TimerQueue {
         log.info("Sending emails to " + infos);
         for (TimerEvent.Info info : infos) {
             Collection<Address> to = new LinkedList<>();
-            to.add(new Address(info.email));
+            to.add(new Address(info.name, info.email));
             headers.put(
                     "Subject",
                     new EmailHeader.String(
-                            "(Un)friendly reminder from Gerrit to " + info.email + " about your review"));
+                            "(Un)friendly reminder to " + info.name + ": do you review!"));
             emailSender.send(from, to, headers, "This is reminder #" + info.count);
         }
     }

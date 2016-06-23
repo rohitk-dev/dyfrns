@@ -18,10 +18,10 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.S");
 
-    TimerEvent(String id, String email) {
+    TimerEvent(String id, String email, String name) {
         this.id = id;
         this.infos = new ArrayList<>();
-        this.infos.add(new Info(email));
+        this.infos.add(new Info(email, name));
         this.expire = new Date(System.currentTimeMillis() + TIMEOUT);
     }
 
@@ -81,8 +81,8 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
         return expire;
     }
 
-    public void addReviewer(String email) {
-        Info newInfo = new Info(email);
+    public void addReviewer(String email, String name) {
+        Info newInfo = new Info(email, name);
         if (!infos.contains(newInfo)) {
             infos.add(newInfo);
         } else {
@@ -93,7 +93,7 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
     public void removeReviewer(String email) {
         Info newInfo = new Info(email);
         if (infos.contains(newInfo)) {
-            infos.remove(email);
+            infos.remove(newInfo);
         } else {
             log.warn("Reviewer " + email + " is not assigned to " + this);
         }
@@ -107,26 +107,35 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
     public String toString() {
         return String.format("Task %s:" +
                         "; expire: %s" +
-                        "; infos: #%s",
+                        "; infos: %s",
                 id, dateFormat.format(expire), infos);
     }
 
     class Info {
         String email;
+        String name;
         int count;
 
         public Info(String email) {
             this.email = email;
         }
 
+        public Info(String email, String name) {
+            this.email = email;
+            this.name = name;
+        }
+
         @Override
         public boolean equals(Object obj) {
-            return email.equals(obj);
+            if (obj == null || !(obj instanceof Info)) {
+                return false;
+            }
+            return email.equals(((Info) obj).email);
         }
 
         @Override
         public String toString() {
-            return email + "(reminder #" + count + ")";
+            return name + "(" + email + "): reminder #" + count;
         }
     }
 }

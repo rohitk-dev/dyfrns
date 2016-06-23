@@ -47,7 +47,10 @@ public class StreamEventListener implements EventListener {
     private void onReviewerAdded(ReviewerAddedEvent reviewerAddedEvent) {
         log.info("Reviewer " + reviewerAddedEvent.reviewer.email + " added");
         try {
-            timerQueue.addReviewer(reviewerAddedEvent.change.number, reviewerAddedEvent.reviewer.email);
+            timerQueue.addReviewer(
+                    reviewerAddedEvent.change.number,
+                    reviewerAddedEvent.reviewer.email,
+                    reviewerAddedEvent.reviewer.name);
         } catch (Exception e) {
             log.info("Got an error: ", e);
         }
