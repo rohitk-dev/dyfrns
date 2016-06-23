@@ -19,9 +19,16 @@ Gerrit.install(function(self) {
     XMLHttpRequest.prototype.send = function(data) {
         this.fakeReturn = false;
         if (data != null && data.search(/\{\"reviewer\":\".*\"\}/) != -1) {
-            if (confirm("The reviewer is busy; add him regardless?") != true) {
-                this.fakeReturn = true;
-                data = '';
+            if (data.indexOf("Chewbacca") != -1) {
+                if (confirm("The reviewer already has 5 reviews assigned; add him regardless?") != true) {
+                    this.fakeReturn = true;
+                    data = '';
+                }
+            } else if (data.indexOf("Darth Vader") != -1) {
+                if (confirm("The reviewer has scheduled PTO in the next few days; add him regardless?") != true) {
+                    this.fakeReturn = true;
+                    data = '';
+                }
             }
         }
         // in this case I'm injecting an access token (eg. accessToken) in the request headers before it gets sent
