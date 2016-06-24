@@ -242,11 +242,14 @@ public class TimerQueue {
                 event.getSubject() +
                 "' in five seconds\" | slackcat -c slackbot -p -s";
 
+        StringBuffer output = new StringBuffer();
 
         ProcessBuilder builder = new ProcessBuilder("slackcat", "-c", "slackbot", "-p", "-s");
         Process process = builder.start();
         OutputStream stdout = process.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdout));
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(process.getInputStream()));
         writer.write(
                 "remind @ivansopin to do a review of '" +
                     event.getSubject() +
@@ -254,7 +257,7 @@ public class TimerQueue {
         writer.flush();
         writer.close();
 /*
-        StringBuffer output = new StringBuffer();
+
 
         Process p = Runtime.getRuntime().exec(command);
         p.getInputStream().
