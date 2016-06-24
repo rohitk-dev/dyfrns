@@ -10,6 +10,7 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
     private static final Logger log = LoggerFactory.getLogger(TimerEvent.class);
 
     private String id;
+    private String subject;
     private Date expire;
     private TimerQueue timerQueue;
     private ArrayList<Info> infos;
@@ -18,8 +19,9 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.S");
 
-    TimerEvent(String id, String email, String name) {
+    TimerEvent(String id, String subject, String email, String name) {
         this.id = id;
+        this.subject = subject;
         this.infos = new ArrayList<>();
         this.infos.add(new Info(email, name));
         this.expire = new Date(System.currentTimeMillis() + TIMEOUT);
@@ -79,6 +81,10 @@ public class TimerEvent implements Comparable<TimerEvent>, Runnable {
 
     public Date getExpire() {
         return expire;
+    }
+
+    public String getSubject() {
+        return subject;
     }
 
     public void addReviewer(String email, String name) {

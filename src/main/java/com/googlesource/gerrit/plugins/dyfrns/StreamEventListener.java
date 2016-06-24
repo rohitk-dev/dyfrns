@@ -49,6 +49,7 @@ public class StreamEventListener implements EventListener {
         try {
             timerQueue.addReviewer(
                     reviewerAddedEvent.change.number,
+                    reviewerAddedEvent.change.subject,
                     reviewerAddedEvent.reviewer.email,
                     reviewerAddedEvent.reviewer.name);
 

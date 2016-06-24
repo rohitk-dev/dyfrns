@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.util.*;
 
 public class TimerQueue {
@@ -106,7 +107,7 @@ public class TimerQueue {
 
         boolean removingFirstEntry = queue.peek().getId().equals(id);
 
-        queue.remove(new TimerEvent(id, null, null));
+        queue.remove(new TimerEvent(id, null, null, null));
         map.remove(id);
 
         if (removingFirstEntry) {
@@ -132,6 +133,7 @@ public class TimerQueue {
         }
 
         sendReminderEmail(event);
+        sendSlackReminder(event);
 
         queue.remove(event);
         map.remove(event.getId());
@@ -140,12 +142,12 @@ public class TimerQueue {
         log.info("readded the event");
     }
 
-    public synchronized void addReviewer(String id, String email, String name) throws Exception {
+    public synchronized void addReviewer(String id, String subject, String email, String name) throws Exception {
         if (map.containsKey(id)) {
             TimerEvent timerEvent = map.get(id);
             timerEvent.addReviewer(email, name);
         } else {
-            TimerEvent timerEvent = new TimerEvent(id, email, name);
+            TimerEvent timerEvent = new TimerEvent(id, subject, email, name);
             add(timerEvent);
         }
     }
@@ -233,6 +235,40 @@ public class TimerQueue {
                             "(Un)friendly reminder to " + info.name + ": do you review!"));
             emailSender.send(from, to, headers, "This is reminder #" + info.count);
         }
+    }
+
+    private void sendSlackReminder(TimerEvent event) throws IOException, InterruptedException {
+        String command = "echo \"remind @ivansopin to do a review of '" +
+                event.getSubject() +
+                "' in five seconds\" | slackcat -c slackbot -p -s";
+
+
+        ProcessBuilder builder = new ProcessBuilder("slackcat", "-c", "slackbot", "-p", "-s");
+        Process process = builder.start();
+        OutputStream stdout = process.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdout));
+        writer.write(
+                "remind @ivansopin to do a review of '" +
+                    event.getSubject() +
+                    "' in five seconds");
+        writer.flush();
+        writer.close();
+/*
+        StringBuffer output = new StringBuffer();
+
+        Process p = Runtime.getRuntime().exec(command);
+        p.getInputStream().
+        p.waitFor();
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+        String line = "";
+        while ((line = reader.readLine())!= null) {
+            output.append(line + "\n");
+        }
+
+        log.info("Output from the shell: " + output.toString());
+        */
     }
 
     private void printQueue() {
